@@ -1,0 +1,346 @@
+<main class="container">
+  <header class="form-header">
+    <div class="logo-area">
+      <span class="procon-badge">PROCON</span>
+    </div>
+    <h1>Fiscalização de SAC</h1>
+    <p>Formulário oficial para registro de reclamações de conformidade de canais de SAC.</p>
+  </header>
+
+  <!-- Se o formulário NÃO foi enviado com sucesso, mostra o formulário e as etapas -->
+  @if (!submissionSuccess()) {
+
+    <!-- Barra de Progresso Visual das Etapas -->
+    <div class="progress-bar-container" aria-hidden="true">
+      <div class="progress-step" [class.active]="currentStep() === 1">1. Serviço</div>
+      <div class="progress-step" [class.active]="currentStep() === 2">2. Consumidor</div>
+      <div class="progress-step" [class.active]="currentStep() === 3">3. Fornecedor</div>
+      <div class="progress-step" [class.active]="currentStep() === 4">4. Questionário</div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- ETAPA 1: TIPO DE SERVIÇO -->
+      @if (currentStep() === 1) {
+        <section class="form-step">
+          <h2>1. Qual o tipo de serviço?</h2>
+
+          <div class="input-group">
+            <label for="tipoServico">Selecione a categoria do serviço:*</label>
+            <select id="tipoServico" formControlName="tipoServico">
+              <option value="" disabled selected>Escolha uma opção...</option>
+              <option value="Cartão de Credito">Cartão de Crédito</option>
+              <option value="Plano de saúde">Plano de Saúde</option>
+              <option value="Telefonia">Telefonia</option>
+              <option value="Bancos">Bancos</option>
+              <option value="Energia">Energia</option>
+              <option value="Compesa">Compesa</option>
+              <option value="Outros">Outros</option>
+            </select>
+            @if (form.get('tipoServico')?.touched && form.get('tipoServico')?.invalid) {
+              <span class="error-msg">A categoria do serviço é obrigatória.</span>
+            }
+          </div>
+
+          <!-- Campo condicional (Bandeira do Cartão) - Só ativa/mostra se habilitado no TS -->
+          @if (form.get('bandeiraCartao')?.enabled) {
+            <div class="input-group conditional-field">
+              <label for="bandeiraCartao">Bandeira do Cartão de Crédito:</label>
+              <select id="bandeiraCartao" formControlName="bandeiraCartao">
+                <option value="" selected>Selecione a bandeira...</option>
+                <option value="Mastercard">Mastercard</option>
+                <option value="Visa">Visa</option>
+                <option value="Elo">Elo</option>
+                <option value="American Express">American Express</option>
+                <option value="Hipercard">Hipercard</option>
+                <option value="Alelo">Alelo</option>
+              </select>
+            </div>
+          }
+
+          <div class="form-navigation">
+            <button type="button" class="btn btn-next" (click)="nextStep(1)">Próximo</button>
+          </div>
+        </section>
+      }
+
+      <!-- ETAPA 2: DADOS DO CONSUMIDOR -->
+      @if (currentStep() === 2) {
+        <section class="form-step">
+          <h2>2. Identificação do Consumidor</h2>
+
+          <div class="input-group">
+            <label for="nomeConsumidor">Nome Completo:*</label>
+            <input type="text" id="nomeConsumidor" formControlName="nomeConsumidor" placeholder="Digite seu nome completo">
+            @if (form.get('nomeConsumidor')?.touched && form.get('nomeConsumidor')?.invalid) {
+              <span class="error-msg">O nome completo é obrigatório.</span>
+            }
+          </div>
+
+          <div class="input-row">
+            <div class="input-group">
+              <label for="cpfConsumidor">CPF:*</label>
+              <input type="text" id="cpfConsumidor" formControlName="cpfConsumidor" placeholder="000.000.000-00" (input)="onCpfInput($event)">
+              <!-- Mensagens de erro inteligentes -->
+              @if (form.get('cpfConsumidor')?.touched && form.get('cpfConsumidor')?.invalid) {
+                @if (form.get('cpfConsumidor')?.errors?.['required']) {
+                  <span class="error-msg">O CPF é obrigatório.</span>
+                } @else if (form.get('cpfConsumidor')?.errors?.['invalidCpf']) {
+                  <span class="error-msg">CPF inválido. Por favor, insira um CPF correto.</span>
+                }
+              }
+            </div>
+
+            <div class="input-group">
+              <label for="telefoneConsumidor">Telefone de Contato:</label>
+              <input type="tel" id="telefoneConsumidor" formControlName="telefoneConsumidor" placeholder="(00) 90000-0000" (input)="onPhoneInput($event)">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="emailConsumidor">E-mail de Contato:</label>
+            <input type="email" id="emailConsumidor" formControlName="emailConsumidor" placeholder="exemplo@email.com">
+            @if (form.get('emailConsumidor')?.touched && form.get('emailConsumidor')?.errors?.['email']) {
+              <span class="error-msg">Por favor, insira um e-mail com formato válido.</span>
+            }
+          </div>
+
+          <div class="input-group">
+            <label for="enderecoConsumidor">Endereço Completo:*</label>
+            <input type="text" id="enderecoConsumidor" formControlName="enderecoConsumidor" placeholder="Rua, Número, Bairro, Cidade, Estado">
+            @if (form.get('enderecoConsumidor')?.touched && form.get('enderecoConsumidor')?.invalid) {
+              <span class="error-msg">O endereço é obrigatório para fins de notificação.</span>
+            }
+          </div>
+
+          <div class="form-navigation">
+            <button type="button" class="btn btn-prev" (click)="prevStep(2)">Voltar</button>
+            <button type="button" class="btn btn-next" (click)="nextStep(2)">Próximo</button>
+          </div>
+        </section>
+      }
+
+      <!-- ETAPA 3: DADOS DO FORNECEDOR -->
+      @if (currentStep() === 3) {
+        <section class="form-step">
+          <h2>3. Dados do Fornecedor Reclamado</h2>
+
+          <div class="input-group">
+            <label for="nomeFornecedor">Nome da Empresa (Fornecedor):*</label>
+            <input type="text" id="nomeFornecedor" formControlName="nomeFornecedor" placeholder="Nome fantasia ou Razão Social">
+            @if (form.get('nomeFornecedor')?.touched && form.get('nomeFornecedor')?.invalid) {
+              <span class="error-msg">O nome da empresa é obrigatório.</span>
+            }
+          </div>
+
+          <div class="input-group">
+            <label for="contatoSac">Telefone do SAC do Fornecedor:*</label>
+            <input type="text" id="contatoSac" formControlName="contatoSac" placeholder="0800 ou número discado para o SAC">
+            @if (form.get('contatoSac')?.touched && form.get('contatoSac')?.invalid) {
+              <span class="error-msg">O telefone de contato do SAC é obrigatório.</span>
+            }
+          </div>
+
+          <div class="input-row">
+            <div class="input-group">
+              <label for="dataContato">Data do Contato:*</label>
+              <input type="date" id="dataContato" formControlName="dataContato">
+              @if (form.get('dataContato')?.touched && form.get('dataContato')?.invalid) {
+                <span class="error-msg">A data é obrigatória.</span>
+              }
+            </div>
+
+            <div class="input-group">
+              <label for="horaContato">Horário do Contato:*</label>
+              <input type="time" id="horaContato" formControlName="horaContato">
+              @if (form.get('horaContato')?.touched && form.get('horaContato')?.invalid) {
+                <span class="error-msg">O horário é obrigatório.</span>
+              }
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="protocolo">Protocolo de Atendimento Informado:*</label>
+            <input type="text" id="protocolo" formControlName="protocolo" placeholder="Número do protocolo fornecido">
+            @if (form.get('protocolo')?.touched && form.get('protocolo')?.invalid) {
+              <span class="error-msg">O número do protocolo é obrigatório.</span>
+            }
+          </div>
+
+          <div class="form-navigation">
+            <button type="button" class="btn btn-prev" (click)="prevStep(3)">Voltar</button>
+            <button type="button" class="btn btn-next" (click)="nextStep(3)">Próximo</button>
+          </div>
+        </section>
+      }
+
+      <!-- ETAPA 4: QUESTIONÁRIO DE FISCALIZAÇÃO DO SAC -->
+      @if (currentStep() === 4) {
+        <section class="form-step">
+          <h2>4. Questionário do SAC</h2>
+          <p class="questionnaire-intro">Por favor, responda com <strong>Sim</strong> ou <strong>Não</strong> sobre a sua experiência na ligação:</p>
+
+          <div class="question-list">
+            <!-- P1 -->
+            <div class="question-item">
+              <span class="question-text">1. No primeiro menu eletrônico, havia opções para reclamação e cancelamento de contratos e serviços?*</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q1" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q1" value="Não"> Não</label>
+              </div>
+            </div>
+
+            <!-- P2 -->
+            <div class="question-item">
+              <span class="question-text">2. No caso de interrupção da chamada telefônica, o fornecedor retornou a chamada para conclusão do atendimento?*</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q2" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q2" value="Não"> Não</label>
+              </div>
+            </div>
+
+            <!-- P3 -->
+            <div class="question-item">
+              <span class="question-text">3. Havia acesso SAC para as pessoas com deficiência?*</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q3" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q3" value="Não"> Não</label>
+              </div>
+            </div>
+
+            <!-- P4 -->
+            <div class="question-item">
+              <span class="question-text">4. O contato SAC estava disponível nos documentos e materiais impressos, bem como nos canais eletrônicos do fornecedor?*</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q4" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q4" value="Não"> Não</label>
+              </div>
+            </div>
+
+            <!-- P5 -->
+            <div class="question-item">
+              <span class="question-text">5. Diante da solicitação do consumidor, houve a transferência ao setor competente para atendimento definitivo da demanda?*</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q5" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q5" value="Não"> Não</label>
+              </div>
+            </div>
+
+            <!-- P6 -->
+            <div class="question-item">
+              <span class="question-text">6. Foi garantido o acesso ao histórico de demandas do consumidor no prazo de 5 dias corridos?*</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q6" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q6" value="Não"> Não</label>
+              </div>
+            </div>
+
+            <!-- P7 -->
+            <div class="question-item">
+              <span class="question-text">7. Foi veiculada mensagens publicitárias não autorizadas durante o tempo de espera para o atendimento?*</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q7" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q7" value="Não"> Não</label>
+              </div>
+            </div>
+
+            <!-- P8 -->
+            <div class="question-item">
+              <span class="question-text">8. O registro de atendimento foi informado durante o contato SAC?*</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q8" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q8" value="Não"> Não</label>
+              </div>
+            </div>
+
+            <!-- P9 (Opcional) -->
+            <div class="question-item">
+              <span class="question-text">9. As solicitações do consumidor foram resolvidas no prazo máximo de 7 dias corridos?</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q9" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q9" value="Não"> Não</label>
+              </div>
+            </div>
+
+            <!-- P10 -->
+            <div class="question-item">
+              <span class="question-text">10. No caso de serviço não solicitado ou cobrança indevida, a cobrança foi suspensa imediatamente?*</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q10" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q10" value="Não"> Não</label>
+              </div>
+            </div>
+
+            <!-- P11 -->
+            <div class="question-item">
+              <span class="question-text">11. O pedido de cancelamento foi permitido e assegurado por todos os meios disponíveis para contratação do serviço?*</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q11" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q11" value="Não"> Não</label>
+              </div>
+            </div>
+
+            <!-- P12 -->
+            <div class="question-item">
+              <span class="question-text">12. Foi percebido algum momento de indisponibilidade do contato SAC?*</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q12" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q12" value="Não"> Não</label>
+              </div>
+            </div>
+
+            <!-- P13 (Opcional) -->
+            <div class="question-item">
+              <span class="question-text">13. O contato SAC foi cordial, com posicionamentos satisfatórios?</span>
+              <div class="radio-group">
+                <label><input type="radio" formControlName="q13" value="Sim"> Sim</label>
+                <label><input type="radio" formControlName="q13" value="Não"> Não</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Termo de Consentimento LGPD -->
+          <div class="input-group consent-group">
+            <label class="checkbox-label" for="consentimentoLgpd">
+              <input type="checkbox" id="consentimentoLgpd" formControlName="consentimentoLgpd">
+              <span>Declaro que li e aceito a Política de Privacidade e autorizo o PROCON a tratar meus dados pessoais para fins de fiscalização do SAC.*</span>
+            </label>
+            @if (form.get('consentimentoLgpd')?.touched && form.get('consentimentoLgpd')?.invalid) {
+              <span class="error-msg">É obrigatório aceitar o termo de consentimento para enviar a reclamação.</span>
+            }
+          </div>
+
+          <!-- Mensagem informativa caso o formulário esteja inválido no momento de enviar -->
+          @if (form.invalid) {
+            <div class="error-summary">
+              Por favor, preencha todos os campos obrigatórios (*) marcados com erro antes de enviar.
+            </div>
+          }
+
+          <div class="form-navigation">
+            <button type="button" class="btn btn-prev" (click)="prevStep(4)">Voltar</button>
+            <button type="submit" class="btn btn-submit" [disabled]="isSubmitting()">
+              {{ isSubmitting() ? 'Enviando...' : 'Enviar Reclamação' }}
+            </button>
+          </div>
+        </section>
+      }
+
+    </form>
+  } @else {
+
+    <!-- TELA DE SUCESSO APÓS ENVIO -->
+    <div class="success-screen">
+      <div class="success-icon" aria-hidden="true">✓</div>
+      <h2>Reclamação Enviada com Sucesso!</h2>
+      <p>Os dados do SAC do fornecedor foram registrados para fiscalização do Procon.</p>
+
+      <div class="receipt-details">
+        <p><strong>Protocolo do Registro:</strong> <span class="receipt-val">{{ receiptProtocol() }}</span></p>
+        <p><strong>Data de Recebimento:</strong> <span class="receipt-val">{{ receiptDate() }}</span></p>
+      </div>
+
+      <button class="btn btn-primary" (click)="resetForm()">Registrar Outra Reclamação</button>
+    </div>
+  }
+</main>
