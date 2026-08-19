@@ -109,9 +109,53 @@
 }
 
 @media (max-width: 600px) {
+  .container {
+    padding: 1.25rem;
+    margin: 1rem;
+    border-radius: 8px;
+  }
+
+  .form-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .form-header p {
+    font-size: 0.85rem;
+  }
+
+  .progress-bar-container {
+    padding: 0 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .progress-step {
+    width: 2.2rem;
+    height: 2.2rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.9rem;
+  }
+
+  .progress-step .step-text {
+    display: none;
+  }
+
   .input-row {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+
+    .form-navigation {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+
+  .form-navigation .btn {
+    width: 100%;
+    padding: 0.85rem;
   }
 }
 

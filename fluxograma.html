@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluxograma de Processo - PROCON SAC</title>
+  <!-- Google Fonts para tipografia premium -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Mermaid.js para renderizar diagramas vetoriais SVG nítidos -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #0c2340;
+      --secondary-color: #1d70b8;
+      --bg-color: #f3f4f6;
+      --card-bg: #ffffff;
+      --text-color: #1f2937;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+      max-width: 800px;
+    }
+    h1 {
+      color: var(--primary-color);
+      font-size: 1.8rem;
+      margin-bottom: 5px;
+    }
+    p {
+      color: #4b5563;
+      margin: 0 0 15px 0;
+      font-size: 0.95rem;
+    }
+    .btn-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .btn {
+      background-color: var(--card-bg);
+      border: 1px solid #d1d5db;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+    }
+    .btn:hover {
+      background-color: #f9fafb;
+      border-color: #9ca3af;
+    }
+    .btn.active {
+      background-color: var(--secondary-color);
+      color: white;
+      border-color: var(--secondary-color);
+    }
+    .btn-print {
+      background-color: #10b981;
+      color: white;
+      border-color: #10b981;
+    }
+    .btn-print:hover {
+      background-color: #059669;
+      border-color: #059669;
+    }
+    .diagram-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      padding: 30px;
+      width: 90%;
+      max-width: 1000px;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+    .mermaid-wrapper {
+      width: 100%;
+      min-width: 600px;
+    }
+    .tab-content {
+      display: none;
+      width: 100%;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @media print {
+      body {
+        background-color: white;
+        padding: 0;
+      }
+      .btn-container, header p {
+        display: none !important;
+      }
+      .diagram-card {
+        box-shadow: none;
+        padding: 0;
+        width: 100%;
+        max-width: none;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Diagramas do Fluxo de Informação (PROCON-SAC)</h1>
+    <p>Use os botões abaixo para alternar entre a visualização de processo detalhado e a sequência cronológica de rede. Clique em "Imprimir / Salvar PDF" para gerar um arquivo PDF de alta resolução.</p>
+  </header>
+
+  <div class="btn-container">
+    <button class="btn active" onclick="switchTab('flowchart')">Fluxograma de Processo (Detalhado)</button>
+    <button class="btn" onclick="switchTab('sequence')">Diagrama de Sequência (Rede/Dados)</button>
+    <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+  </div>
+
+  <div class="diagram-card">
+    <div class="mermaid-wrapper">
+      
+      <!-- TAB FLUXOGRAMA -->
+      <div id="flowchart-tab" class="tab-content active">
+        <pre class="mermaid">
+flowchart TD
+    %% Estilização do Diagrama
+    classDef stepClass fill:#f9fafb,stroke:#d1d5db,stroke-width:2px,color:#1f2937;
+    classDef decisionClass fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef actionClass fill:#f0fdf4,stroke:#16a34a,stroke-width:2px,color:#15803d;
+    classDef errorClass fill:#fef2f2,stroke:#dc2626,stroke-width:2px,color:#991b1b;
+    classDef startClass fill:#0c2340,stroke:#0c2340,color:white,font-weight:bold;
+
+    Start([Início: Cidadão acessa o site]):::startClass --> Step1[Etapa 1: Categoria de Serviço]:::stepClass
+    
+    Step1 --> ChoiceService{Serviço == Cartão?}:::decisionClass
+    ChoiceService -->|Sim| ShowBandeira[Exibe campo Bandeira do Cartão]:::stepClass
+    ChoiceService -->|Não| HideBandeira[Mantém oculto e desabilitado]:::stepClass
+    
+    ShowBandeira & HideBandeira --> Next1[Botão Avançar]:::stepClass
+    Next1 --> Step2[Etapa 2: Dados do Consumidor]:::stepClass
+    
+    Step2 --> TypingCPF[Digitação CPF & Telefone]:::stepClass
+    TypingCPF --> MaskApply[Máscaras em tempo real aplicadas no input]:::stepClass
+    MaskApply --> Next2[Botão Avançar]:::stepClass
+    Next2 --> ValidCPF{Algoritmo CPF é válido?}:::decisionClass
+    ValidCPF -->|Não| ErrorCPF[Exibe erro e bloqueia avanço]:::errorClass
+    ValidCPF -->|Sim| Step3[Etapa 3: Dados do Fornecedor]:::stepClass
+    
+    ErrorCPF --> TypingCPF
+    
+    Step3 --> InputFornecedor[Preenche dados do SAC / Protocolo]:::stepClass
+    InputFornecedor --> Next3[Botão Avançar]:::stepClass
+    Next3 --> Step4[Etapa 4: Questionário & LGPD]:::stepClass
+    
+    Step4 --> CheckList[Responde 13 perguntas de conformidade]:::stepClass
+    CheckList --> ConsentLGPD{Marcou aceite da LGPD?}:::decisionClass
+    
+    ConsentLGPD -->|Não| BlockSubmit[Bloqueia envio e exibe alerta]:::errorClass
+    ConsentLGPD -->|Sim| ClickSubmit[Botão Enviar Reclamação]:::stepClass
+    
+    BlockSubmit --> Step4
+    
+    ClickSubmit --> Loading[Exibe tela de processamento: Enviando...]:::actionClass
+    
+    Loading --> FetchSend[Angular envia POST text/plain com chaveSeguranca]:::actionClass
+    
+    FetchSend --> GAS_Recv[Google Apps Script recebe JSON]:::actionClass
+    
+    GAS_Recv --> AuthCheck{chaveSeguranca == Token Requerido?}:::decisionClass
+    AuthCheck -->|Não| Res403[Retorna Erro 403: Acesso não autorizado]:::errorClass
+    AuthCheck -->|Sim| ServerValid{CPF & Obrigatórios Preenchidos?}:::decisionClass
+    
+    ServerValid -->|Não| Res400[Retorna Erro 400: Dados ausentes ou CPF inválido]:::errorClass
+    ServerValid -->|Sim| GenProtocol[Gera Protocolo: PROCON-ANO-RANDOM]:::actionClass
+    
+    GenProtocol --> Sanitize[Higieniza campos de texto: Previne XSS]:::actionClass
+    Sanitize --> WriteSheet[Escreve linha na planilha: Coluna A a AA - Protocolo na AA]:::actionClass
+    WriteSheet --> Res200[Retorna status: success e protocolo]:::actionClass
+    
+    Res200 & Res400 & Res403 --> AngularHandler{Status da Resposta}:::decisionClass
+    
+    AngularHandler -->|Sucesso| SuccessScreen[Exibe tela verde de Sucesso com Protocolo Oficial]:::actionClass
+    AngularHandler -->|Erro| ErrorScreen[Exibe alerta de erro na tela e libera botão para reenvio]:::errorClass
+    
+    SuccessScreen --> Reset[Botão Novo Registro limpa formulário]:::stepClass
+    Reset --> Step1
+        </pre>
+      </div>
+
+      <!-- TAB DIAGRAMA DE SEQUENCIA -->
+      <div id="sequence-tab" class="tab-content">
+        <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Cidadao as Cidadão (Navegador)
+    participant Angular as Formulário Angular (Frontend)
+    participant API as Google Apps Script (Backend)
+    participant Planilha as Google Sheets (Planilha)
+
+    Cidadao->>Angular: 1. Preenche o formulário (Etapas 1 a 4)
+    Note over Angular: O Angular formata o telefone e valida o CPF digitado
+    
+    Cidadao->>Angular: 2. Aceita a LGPD e clica em "Enviar"
+    
+    Angular->>API: 3. Envia os dados + Token Secreto de Segurança
+    
+    Note over API: O Google valida o Token Secreto (Anti-Spam)
+    Note over API: O Google limpa os textos contra hacks (Anti-XSS)
+    Note over API: O Google gera o número de Protocolo Oficial
+    
+    API->>Planilha: 4. Grava a linha na planilha (colunas A a Z) + Protocolo (coluna AA)
+    Planilha-->>API: 5. Confirmação de gravação
+    
+    API-->>Angular: 6. Devolve resposta de Sucesso + Protocolo Oficial
+    
+    Angular-->>Cidadao: 7. Exibe a tela verde com o número do Protocolo
+        </pre>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Inicializa o Mermaid.js
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+
+    // Função para alternar as abas
+    function switchTab(tabId) {
+      document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+      if (tabId === 'flowchart') {
+        document.querySelector('button[onclick="switchTab(\'flowchart\')"]').classList.add('active');
+        document.getElementById('flowchart-tab').classList.add('active');
+      } else {
+        document.querySelector('button[onclick="switchTab(\'sequence\')"]').classList.add('active');
+        document.getElementById('sequence-tab').classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>
