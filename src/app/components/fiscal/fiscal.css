@@ -1,0 +1,457 @@
+/* CONTAINER E CABEÇALHO */
+.fiscal-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: transparent;
+}
+
+.fiscal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  background-color: var(--card-bg);
+  padding: 1.75rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  border-top: 4px solid var(--primary-color);
+}
+
+.header-title h1 {
+  font-size: 1.6rem;
+  color: var(--primary-color);
+  font-weight: 700;
+  margin: 0.25rem 0;
+}
+
+.header-title p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* BARRA DE AÇÕES (BUSCA E ATUALIZAR) */
+.actions-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-box {
+  flex-grow: 1;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px rgba(29, 112, 184, 0.15);
+}
+
+.btn-refresh {
+  background-color: var(--primary-color);
+  color: white;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-refresh:hover {
+  background-color: var(--primary-light);
+}
+
+/* CARREGAMENTO / LOADING */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid var(--secondary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* TABELA DE DADOS */
+.table-responsive {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.925rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+  background-color: #f8fafc;
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.data-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.col-date {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.col-protocol {
+  color: var(--primary-light);
+  font-family: monospace;
+  font-size: 0.95rem;
+}
+
+.col-company {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.service-tag {
+  display: inline-block;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.btn-action-view {
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-action-view:hover {
+  background-color: #16a34a;
+  color: white;
+}
+
+.empty-message {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 3rem 1rem !important;
+  font-style: italic;
+}
+
+/* =============================================================
+   FICHA DE IMPRESSÃO (ESTILO FOLHA A4 FLUTUANTE NA TELA)
+   ============================================================= */
+.ficha-impressao {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ficha-controls {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  background-color: var(--card-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-print-doc {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-print-doc:hover {
+  background-color: #059669;
+}
+
+/* SIMULAÇÃO DE PAPEL A4 (Na tela do computador) */
+.a4-document {
+  background-color: white;
+  width: 100%;
+  max-width: 850px;
+  min-height: 1120px; /* Proporção de uma folha A4 */
+  padding: 40px;
+  border-radius: 4px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid #d1d5db;
+  box-sizing: border-box;
+}
+
+/* Cabeçalho do Documento */
+.doc-header {
+  display: flex;
+  align-items: center;
+  border-bottom: 2px double #000;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.doc-logo-area {
+  margin-right: 20px;
+}
+
+.badge-procon-large {
+  background-color: #0c2340;
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 900;
+  padding: 5px 15px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.doc-title-area h2 {
+  font-size: 1.1rem;
+  color: #0c2340;
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.doc-title-area h3 {
+  font-size: 0.95rem;
+  color: #374151;
+  margin: 3px 0 0 0;
+  font-weight: 700;
+}
+
+/* Seções e Tabelas no Documento */
+.doc-section {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.section-title {
+  font-size: 0.8rem;
+  color: #0c2340;
+  background-color: #f3f4f6;
+  padding: 6px 10px;
+  margin: 0 0 8px 0;
+  border: 1px solid #d1d5db;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.doc-table td {
+  border: 1px solid #d1d5db;
+  padding: 8px 12px;
+  font-size: 0.825rem;
+  vertical-align: top;
+  line-height: 1.4;
+  color: #1f2937;
+}
+
+.doc-table tr strong {
+  color: #0c2340;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.highlight-text {
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0c2340;
+}
+
+/* Lista de Perguntas (Compacta para caber na folha) */
+.questionnaire-print-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+.q-print-item {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.q-print-item:last-child {
+  border-bottom: none;
+}
+
+.q-num {
+  width: 40px;
+  font-weight: 700;
+  background-color: #f9fafb;
+  border-right: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #0c2340;
+}
+
+.q-desc {
+  flex-grow: 1;
+  padding: 6px 12px;
+  color: #374151;
+}
+
+.q-ans {
+  width: 70px;
+  font-weight: 700;
+  border-left: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: #f9fafb;
+}
+
+/* Alerta de Infração (Vermelho na Impressão) */
+.q-ans.no-conform {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border-left: 2px solid #dc2626;
+}
+
+/* LGPD */
+.lgpd-doc-box {
+  border: 1px solid #d1d5db;
+  background-color: #fafbfc;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.lgpd-doc-box p {
+  margin: 0 0 5px 0;
+  font-size: 0.8rem;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.lgpd-doc-box p:last-child {
+  margin: 0;
+}
+
+/* Rodapé e Assinatura */
+.doc-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 35px;
+  border-top: 1px solid #d1d5db;
+  padding-top: 15px;
+}
+
+.validation-info p {
+  margin: 0 0 4px 0;
+  font-size: 0.725rem;
+  color: #6b7280;
+}
+
+.signature-line {
+  text-align: center;
+  width: 250px;
+}
+
+.signature-line .line {
+  border-bottom: 1px solid #000;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.signature-line p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+/* =============================================================
+   FOLHA DE IMPRESSÃO (REGRAS EXCLUSIVAS DE IMPRESSORA - PDF)
+   ============================================================= */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .fiscal-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Esconde completamente toda a navegação e controles */
+  .non-printable, 
+  .non-printable-area, 
+  .actions-bar,
+  .fiscal-header {
+    display: none !important;
+  }
+
+  /* Reseta a simulação de papel para virar papel de verdade */
+  .a4-document {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    margin: 0 !important;
+  }
+
+  /* Evita quebras de páginas feias no meio das tabelas */
+  .doc-section {
+    page-break-inside: avoid;
+  }
+}

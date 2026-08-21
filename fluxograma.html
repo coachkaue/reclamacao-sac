@@ -90,13 +90,21 @@
       width: 100%;
       min-width: 600px;
     }
+    
+    /* CSS CORRIGIDO: Evita o colapso do Mermaid ocultando sem perder as dimensões de renderização */
     .tab-content {
-      display: none;
+      height: 0;
+      overflow: hidden;
       width: 100%;
+      opacity: 0;
+      transition: opacity 0.2s ease;
     }
     .tab-content.active {
-      display: block;
+      height: auto;
+      overflow: visible;
+      opacity: 1;
     }
+    
     @media print {
       body {
         background-color: white;
@@ -127,6 +135,7 @@
   <div class="btn-container">
     <button class="btn active" onclick="switchTab('flowchart')">Fluxograma de Processo (Detalhado)</button>
     <button class="btn" onclick="switchTab('sequence')">Diagrama de Sequência (Rede/Dados)</button>
+    <button class="btn" onclick="switchTab('fiscal')">Fluxo da Área do Fiscal (Auditoria)</button>
     <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
   </div>
 
@@ -231,6 +240,49 @@ sequenceDiagram
         </pre>
       </div>
 
+      <!-- TAB ÁREA DO FISCAL -->
+      <div id="fiscal-tab" class="tab-content">
+        <pre class="mermaid">
+flowchart TD
+    %% Estilização do Diagrama
+    classDef stepClass fill:#f9fafb,stroke:#d1d5db,stroke-width:2px,color:#1f2937;
+    classDef decisionClass fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef actionClass fill:#f0fdf4,stroke:#16a34a,stroke-width:2px,color:#15803d;
+    classDef errorClass fill:#fef2f2,stroke:#dc2626,stroke-width:2px,color:#991b1b;
+    classDef startClass fill:#0c2340,stroke:#0c2340,color:white,font-weight:bold;
+
+    Start(["Início: Fiscal acessa a Área do Fiscal"]):::startClass --> LoadPage["Sistema carrega página administrativa /fiscal"]:::stepClass
+    
+    LoadPage --> FetchList["Angular faz requisição GET para Google Apps Script"]:::actionClass
+    
+    FetchList --> GAS_List["Apps Script lê a Planilha Google"]:::actionClass
+    GAS_List --> ReadAllRows["Lê todas as reclamações registradas"]:::actionClass
+    ReadAllRows --> ReturnJSON["Retorna lista JSON com todas as reclamações"]:::actionClass
+    
+    ReturnJSON --> RenderTable["Angular renderiza a tabela cronológica das reclamações"]:::stepClass
+    
+    RenderTable --> SearchBar["Fiscal pode pesquisar por CPF, Nome, Fornecedor ou Protocolo"]:::stepClass
+    SearchBar --> TableUpdate["Tabela filtra os resultados na tela em tempo real"]:::stepClass
+    
+    TableUpdate --> ClickView["Fiscal clica no botão 'Abrir Ficha de Fiscalização' de uma linha"]:::stepClass
+    
+    ClickView --> FetchDetail["Angular faz requisição GET do registro completo por Protocolo"]:::actionClass
+    
+    FetchDetail --> GAS_Row["Apps Script localiza a linha exata correspondente na Planilha"]:::actionClass
+    GAS_Row --> ReturnDetail["Retorna o JSON completo com os 27 dados higienizados"]:::actionClass
+    
+    ReturnDetail --> RenderFicha["Angular renderiza a Ficha de Fiscalização Oficial do Procon"]:::stepClass
+    
+    RenderFicha --> Triage["Fiscal realiza a Triagem e a Fundamentação Jurídica manual"]:::stepClass
+    
+    Triage --> ClickPrint["Fiscal clica no botão 'Imprimir Ficha'"]:::stepClass
+    
+    ClickPrint --> BrowserPrint["Navegador abre janela de Impressão"]:::actionClass
+    
+    BrowserPrint --> PrintOutput(["Ficha impressa em papel ou salva em PDF de alta qualidade"]):::actionClass
+        </pre>
+      </div>
+
     </div>
   </div>
 
@@ -246,10 +298,16 @@ sequenceDiagram
       if (tabId === 'flowchart') {
         document.querySelector('button[onclick="switchTab(\'flowchart\')"]').classList.add('active');
         document.getElementById('flowchart-tab').classList.add('active');
-      } else {
+      } else if (tabId === 'sequence') {
         document.querySelector('button[onclick="switchTab(\'sequence\')"]').classList.add('active');
         document.getElementById('sequence-tab').classList.add('active');
+      } else if (tabId === 'fiscal') {
+        document.querySelector('button[onclick="switchTab(\'fiscal\')"]').classList.add('active');
+        document.getElementById('fiscal-tab').classList.add('active');
       }
+      
+      // Força o navegador a recalcular o layout do SVG do Mermaid ao trocar de aba
+      window.dispatchEvent(new Event('resize'));
     }
   </script>
 </body>

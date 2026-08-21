@@ -8,20 +8,25 @@ import { Observable } from 'rxjs';
 export class ReclamacaoService {
   private readonly http = inject(HttpClient);
   // URL oficial configurada da API do Google Apps Script
-  private readonly scriptUrl = 'https://script.google.com/macros/s/AKfycbwQfztIL0MWruSLz8prOwpd5gAC2Wq8QDTS93Ingbv25cN0Ku58fG_r3IUkBBMaLeb1/exec';
+  private readonly scriptUrl = 'https://script.google.com/macros/s/AKfycbzbCphW0U2qPD-yaAucZ8vG41wxCFQrjEr7D87Cl5A3i-F1OmfkgnZBtq3ADnShfIOy/exec';
 
-    enviarReclamacao(formData: any): Observable<{ status: string; protocol?: string }> {
-    // Anexa a chave de segurança secreta que o Google Apps Script exigirá
+  // Salva uma nova reclamação (Cidadão)
+  enviarReclamacao(formData: any): Observable<{ status: string; protocol?: string }> {
     const payload = {
       ...formData,
       chaveSeguranca: 'PROCON_PE_SECURE_TOKEN_2026'
     };
 
-    // Enviamos o JSON como string com tipo text/plain para evitar o erro de CORS
     return this.http.post<{ status: string; protocol?: string }>(
       this.scriptUrl,
       JSON.stringify(payload),
       { headers: { 'Content-Type': 'text/plain' } }
     );
+  }
+
+  // Consulta todas as reclamações (Área do Fiscal) <--- NOVO MÉTODO!
+  obterReclamacoes(): Observable<{ status: string; data?: any[]; message?: string }> {
+    const url = `${this.scriptUrl}?chaveSeguranca=PROCON_PE_SECURE_TOKEN_2026`;
+    return this.http.get<{ status: string; data?: any[]; message?: string }>(url);
   }
 }

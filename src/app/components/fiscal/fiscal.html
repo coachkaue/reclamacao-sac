@@ -1,0 +1,245 @@
+<main class="fiscal-container">
+  
+  <!-- TELA PRINCIPAL: TABELA E BUSCA (Esta parte some ao imprimir) -->
+  <div class="non-printable-area" *ngIf="!selectedReclamacao()">
+    <header class="fiscal-header">
+      <div class="header-title">
+        <span class="procon-badge">ÁREA ADMINISTRATIVA</span>
+        <h1>Auditoria de SAC - Fiscais</h1>
+        <p>Consulte, analise e imprima as reclamações registradas na base de dados.</p>
+      </div>
+      <button class="btn btn-prev" (click)="voltarAoFormulario()">⬅ Voltar ao Formulário</button>
+    </header>
+
+    <!-- Barra de Ações (Busca e Atualização) -->
+    <div class="actions-bar">
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="🔍 Buscar por CPF, Consumidor, Empresa ou Protocolo..." 
+          [value]="searchText()"
+          (input)="onSearchInput($event)"
+        />
+      </div>
+      <button class="btn btn-refresh" (click)="carregarReclamacoes()" [disabled]="isLoading()">
+        {{ isLoading() ? 'Atualizando...' : '🔄 Atualizar Lista' }}
+      </button>
+    </div>
+
+    <!-- Indicador de Carregamento -->
+    <div class="loading-state" *ngIf="isLoading()">
+      <div class="spinner"></div>
+      <p>Carregando dados da Planilha do Google...</p>
+    </div>
+
+    <!-- Tabela de Reclamações -->
+    <div class="table-responsive" *ngIf="!isLoading()">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Data/Hora Envio</th>
+            <th>Protocolo PROCON</th>
+            <th>Consumidor</th>
+            <th>Fornecedor (Empresa)</th>
+            <th>Serviço</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of filteredReclamacoes()">
+            <td class="col-date">{{ item.carimboDataHora | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td class="col-protocol"><strong>{{ item.protocoloProcon }}</strong></td>
+            <td>{{ item.nomeConsumidor }}</td>
+            <td class="col-company">{{ item.nomeFornecedor }}</td>
+            <td><span class="service-tag">{{ item.tipoServico }}</span></td>
+            <td>
+              <button class="btn-action-view" (click)="abrirFicha(item)">📄 Abrir Ficha</button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredReclamacoes().length === 0">
+            <td colspan="6" class="empty-message">
+              Nenhuma reclamação encontrada para o termo pesquisado.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TELA DE DETALHE DA RECLAMAÇÃO: FICHA IMPRESSA OFICIAL (A4) -->
+  <div class="ficha-impressao" *ngIf="selectedReclamacao() as reclamacao">
+    
+    <!-- Barra de Controle Superior (Não é impressa) -->
+    <div class="ficha-controls non-printable">
+      <button class="btn btn-prev" (click)="fecharFicha()">⬅ Voltar para a Tabela</button>
+      <button class="btn btn-print-doc" (click)="imprimir()">🖨️ Imprimir / Salvar PDF</button>
+    </div>
+
+    <!-- DOCUMENTO OFICIAL PROCON (Otimizado para folha A4) -->
+    <article class="a4-document">
+      
+      <!-- Cabeçalho Institucional -->
+      <header class="doc-header">
+        <div class="doc-logo-area">
+          <div class="badge-procon-large">PROCON</div>
+        </div>
+        <div class="doc-title-area">
+          <h2>INSTITUTO DE PROTEÇÃO E DEFESA DO CONSUMIDOR</h2>
+          <h3>FICHA DE REGISTRO DE RECLAMAÇÃO - CONFORMIDADE DE SAC</h3>
+        </div>
+      </header>
+
+      <!-- Grupo 1: Dados do Registro -->
+      <section class="doc-section">
+        <h4 class="section-title">1. INFORMAÇÕES DE PROTOCOLO E REGISTRO</h4>
+        <table class="doc-table">
+          <tr>
+            <td width="33%"><strong>Protocolo Oficial PROCON:</strong><br><span class="highlight-text">{{ reclamacao.protocoloProcon }}</span></td>
+            <td width="33%"><strong>Data/Hora de Registro:</strong><br>{{ reclamacao.carimboDataHora | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+            <td width="34%"><strong>Protocolo do Fornecedor:</strong><br>{{ reclamacao.protocolo }}</td>
+          </tr>
+        </table>
+      </section>
+
+      <!-- Grupo 2: Dados do Consumidor -->
+      <section class="doc-section">
+        <h4 class="section-title">2. DADOS DO RECLAMANTE (CONSUMIDOR)</h4>
+        <table class="doc-table">
+          <tr>
+            <td colspan="2"><strong>Nome Completo:</strong><br>{{ reclamacao.nomeConsumidor }}</td>
+            <td width="34%"><strong>CPF:</strong><br>{{ reclamacao.cpfConsumidor }}</td>
+          </tr>
+          <tr>
+            <td width="33%"><strong>Telefone:</strong><br>{{ reclamacao.telefoneConsumidor || 'Não informado' }}</td>
+            <td width="33%"><strong>E-mail:</strong><br>{{ reclamacao.emailConsumidor || 'Não informado' }}</td>
+            <td><strong>Endereço Residencial:</strong><br>{{ reclamacao.enderecoConsumidor }}</td>
+          </tr>
+        </table>
+      </section>
+
+      <!-- Grupo 3: Dados do Fornecedor -->
+      <section class="doc-section">
+        <h4 class="section-title">3. DADOS DA RECLAMAÇÃO (FORNECEDOR E SAC)</h4>
+        <table class="doc-table">
+          <tr>
+            <td width="33%"><strong>Nome do Fornecedor:</strong><br>{{ reclamacao.nomeFornecedor }}</td>
+            <td width="33%"><strong>Canal de Atendimento:</strong><br>{{ reclamacao.tipoServico }} <span *ngIf="reclamacao.bandeiraCartao">({{ reclamacao.bandeiraCartao }})</span></td>
+            <td width="34%"><strong>Meio de Contato SAC:</strong><br>{{ reclamacao.contatoSac }}</td>
+          </tr>
+          <tr>
+            <td colspan="3"><strong>Data/Hora de Contato com o SAC:</strong><br>{{ reclamacao.dataContato }} às {{ reclamacao.horaContato }}</td>
+          </tr>
+        </table>
+      </section>
+
+      <!-- Grupo 4: Questionário de Conformidade -->
+      <section class="doc-section">
+        <h4 class="section-title">4. QUESTIONÁRIO DE AVALIAÇÃO DE CONFORMIDADE</h4>
+        <div class="questionnaire-print-list">
+          
+          <div class="q-print-item">
+            <span class="q-num">P1</span>
+            <span class="q-desc">No primeiro menu eletrônico, havia opções para reclamação e cancelamento?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q1 === 'Não'">{{ reclamacao.q1 }}</span>
+          </div>
+
+          <div class="q-print-item">
+            <span class="q-num">P2</span>
+            <span class="q-desc">No caso de queda de chamada, o fornecedor retornou a ligação?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q2 === 'Não'">{{ reclamacao.q2 }}</span>
+          </div>
+
+          <div class="q-print-item">
+            <span class="q-num">P3</span>
+            <span class="q-desc">Havia acesso SAC adequado para pessoas com deficiência?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q3 === 'Não'">{{ reclamacao.q3 }}</span>
+          </div>
+
+          <div class="q-print-item">
+            <span class="q-num">P4</span>
+            <span class="q-desc">O contato SAC estava disponível de forma clara nos documentos/canais do fornecedor?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q4 === 'Não'">{{ reclamacao.q4 }}</span>
+          </div>
+
+          <div class="q-print-item">
+            <span class="q-num">P5</span>
+            <span class="q-desc">Houve a transferência rápida ao setor competente para atendimento definitivo?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q5 === 'Não'">{{ reclamacao.q5 }}</span>
+          </div>
+
+          <div class="q-print-item">
+            <span class="q-num">P6</span>
+            <span class="q-desc">Foi garantido acesso ao histórico de demandas no prazo de 5 dias corridos?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q6 === 'Não'">{{ reclamacao.q6 }}</span>
+          </div>
+
+          <div class="q-print-item">
+            <span class="q-num">P7</span>
+            <span class="q-desc">Foi veiculada mensagem publicitária durante o tempo de espera no SAC?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q7 === 'Sim'">{{ reclamacao.q7 }}</span>
+          </div>
+
+          <div class="q-print-item">
+            <span class="q-num">P8</span>
+            <span class="q-desc">O registro (número de protocolo) de atendimento foi informado logo no início do contato?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q8 === 'Não'">{{ reclamacao.q8 }}</span>
+          </div>
+
+          <div class="q-print-item" *ngIf="reclamacao.q9">
+            <span class="q-num">P9</span>
+            <span class="q-desc">Houve cobrança indevida de tarifas para ligações direcionadas ao SAC?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q9 === 'Sim'">{{ reclamacao.q9 }}</span>
+          </div>
+
+          <div class="q-print-item">
+            <span class="q-num">P10</span>
+            <span class="q-desc">O SAC funcionou em regime de atendimento 24 horas por dia, 7 dias por semana?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q10 === 'Não'">{{ reclamacao.q10 }}</span>
+          </div>
+
+          <div class="q-print-item">
+            <span class="q-num">P11</span>
+            <span class="q-desc">O tempo máximo de espera para contato com o atendente foi menor que 60 segundos?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q11 === 'Não'">{{ reclamacao.q11 }}</span>
+          </div>
+
+          <div class="q-print-item">
+            <span class="q-num">P12</span>
+            <span class="q-desc">Foi percebido algum momento de indisponibilidade ou falha do contato SAC?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q12 === 'Sim'">{{ reclamacao.q12 }}</span>
+          </div>
+
+          <div class="q-print-item" *ngIf="reclamacao.q13">
+            <span class="q-num">P13</span>
+            <span class="q-desc">O contato SAC foi cordial e com posicionamentos satisfatórios?</span>
+            <span class="q-ans" [class.no-conform]="reclamacao.q13 === 'Não'">{{ reclamacao.q13 }}</span>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Grupo 5: Termos da LGPD -->
+      <section class="doc-section">
+        <h4 class="section-title">5. TERMO DE CONSENTIMENTO E PRIVACIDADE (LGPD)</h4>
+        <div class="lgpd-doc-box">
+          <p><strong>[X] CONSENTIMENTO ATIVO REGISTRADO</strong></p>
+          <p>O reclamante declarou consentimento expresso, autorizando o PROCON a tratar seus dados pessoais para fins de fiscalização e instauração de procedimentos contra o fornecedor, em total conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/18).</p>
+        </div>
+      </section>
+
+      <!-- Espaço de Assinatura/Validação -->
+      <footer class="doc-footer">
+        <div class="validation-info">
+          <p>Ficha de Fiscalização gerada eletronicamente pelo Sistema PROCON-SAC.</p>
+          <p>Validação de Protocolo: <strong>{{ reclamacao.protocoloProcon }}</strong></p>
+        </div>
+        <div class="signature-line">
+          <div class="line"></div>
+          <p>Assinatura / Carimbo do Fiscal Responsável</p>
+        </div>
+      </footer>
+
+    </article>
+  </div>
+
+</main>

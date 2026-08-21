@@ -1,2 +1,18 @@
-<!-- Renderiza o formulário de reclamações que foi modularizado e isolado -->
-<app-reclamacao-form></app-reclamacao-form>
+@if (currentView() === 'form') {
+  <!-- Tela Pública do Cidadão -->
+  <app-reclamacao-form></app-reclamacao-form>
+  
+  <!-- Atalho discreto no rodapé para os Fiscais -->
+  <footer style="text-align: center; padding: 2rem 0; margin-top: 1rem; border-top: 1px dashed #e5e7eb;">
+    <button 
+      (click)="irParaFiscal()" 
+      style="background: none; border: none; color: #9ca3af; font-size: 0.8rem; cursor: pointer; text-decoration: underline;"
+      title="Acesso exclusivo para funcionários autorizados do PROCON."
+    >
+      Área do Fiscal
+    </button>
+  </footer>
+} @else if (currentView() === 'fiscal') {
+  <!-- Tela Administrativa de Auditoria -->
+  <app-fiscal (voltar)="voltarAoForm()"></app-fiscal>
+}
